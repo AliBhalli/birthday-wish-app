@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#B8A6F5" />
+<meta name="description" content="A tiny, magical and customizable birthday experience." />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-touch-icon" content="./assets/icons/icon-180.png" />
+<link rel="manifest" href="./manifest.json" />
+<link rel="icon" href="./assets/icons/favicon-32.png" sizes="32x32" type="image/png" />
+<link rel="icon" href="./assets/icons/favicon-16.png" sizes="16x16" type="image/png" />
+<link rel="apple-touch-icon" href="./assets/icons/icon-180.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Quicksand:wght@500;600;700&family=Poppins:wght@400;500&display=swap" rel="stylesheet" />
+<title>A Little Birthday Surprise — Customizable Birthday Experience</title>
+<link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+
+<canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<button id="mute-btn" class="icon-btn floating-ui" aria-label="Mute music" aria-pressed="false">
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+  </svg>
+</button>
+
+<div id="progress-dots" class="progress-dots floating-ui" aria-hidden="true"></div>
+
+<main id="app" role="main">
+
+  <!-- SPLASH -->
+  <section class="screen active" id="screen-splash" aria-label="Loading">
+    <div class="splash-wrap">
+      <div class="splash-badge">
+        <svg viewBox="0 0 100 100" width="88" height="88">
+          <defs>
+            <linearGradient id="splashGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#B8A6F5"/>
+              <stop offset="1" stop-color="#FFB5A7"/>
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="46" fill="url(#splashGrad)" opacity="0.25"/>
+          <g id="splash-gift" transform="translate(50 54)">
+            <rect x="-22" y="-6" width="44" height="32" rx="6" fill="#ffffff"/>
+            <rect x="-24" y="-20" width="48" height="16" rx="5" fill="#ffffff"/>
+            <rect x="-4.5" y="-20" width="9" height="46" fill="#FFB347"/>
+            <circle cx="-9" cy="-22" r="7" fill="#FF8A65"/>
+            <circle cx="9" cy="-22" r="7" fill="#FF8A65"/>
+          </g>
+        </svg>
+      </div>
+      <p class="splash-label">wrapping something up<span class="dots"><span>.</span><span>.</span><span>.</span></span></p>
+    </div>
+  </section>
+
+  <!-- WELCOME -->
+  <section class="screen" id="screen-welcome" aria-label="Welcome">
+    <div class="glass-card center-card">
+      <p class="eyebrow" id="welcome-eyebrow">for you</p>
+      <h1 class="display-xl">Happy Birthday!</h1>
+      <p class="body-text">
+        I thought a normal birthday message would be too ordinary…<br/>
+        So I made something a little different.
+      </p>
+      <button class="btn-primary" id="btn-start" data-sfx="tap">
+        Start
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- GIFT BOX -->
+  <section class="screen" id="screen-gift" aria-label="Gift box">
+    <div class="stage-header">
+      <p class="eyebrow">chapter one</p>
+      <h2 class="display-md">A little something to open</h2>
+      <p class="body-text muted">Tap the box.</p>
+    </div>
+
+    <div class="gift-stage">
+      <canvas id="confetti-canvas-gift" class="overlay-canvas"></canvas>
+      <button class="gift-box" id="gift-box" aria-label="Open gift box" data-sfx="tap">
+        <div class="gift-lid"></div>
+        <div class="gift-base"></div>
+        <div class="gift-ribbon-v"></div>
+        <div class="gift-ribbon-h"></div>
+        <div class="gift-bow"><span></span><span></span></div>
+      </button>
+    </div>
+
+    <div class="reveal-card glass-card hidden" id="gift-reveal">
+      <p class="reveal-label">your first wish</p>
+      <p class="reveal-text" id="gift-wish-text"></p>
+      <button class="btn-primary" id="btn-after-gift" data-sfx="tap">
+        Continue
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- BALLOONS -->
+  <section class="screen" id="screen-balloons" aria-label="Balloon wishes">
+    <div class="stage-header compact">
+      <p class="eyebrow">chapter two</p>
+      <h2 class="display-md">Pop a wish</h2>
+      <p class="body-text muted"><span id="balloon-count">30</span> wishes left to find</p>
+    </div>
+
+    <div class="balloon-field" id="balloon-field"></div>
+
+    <button class="btn-secondary floating-continue show" id="btn-after-balloons" data-sfx="tap">
+      Continue
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </section>
+
+  <!-- CAKE DECORATION -->
+  <section class="screen" id="screen-cake" aria-label="Decorate the cake">
+    <div class="stage-header compact">
+      <h2 class="display-md">Decorate the cake</h2>
+      <p class="body-text muted">Drag toppings onto the cake</p>
+    </div>
+
+    <div class="cake-workspace">
+      <div class="cake-dropzone" id="cake-dropzone">
+        <svg viewBox="0 0 300 220" class="cake-base-svg" aria-hidden="true">
+          <ellipse cx="150" cy="196" rx="118" ry="16" fill="#E7B8A0"/>
+          <rect x="40" y="140" width="220" height="56" rx="14" fill="#F6D3B8"/>
+          <rect x="40" y="140" width="220" height="16" rx="8" fill="#FCE4CF"/>
+          <ellipse cx="150" cy="140" rx="110" ry="18" fill="#FFF3E6"/>
+          <rect x="60" y="86" width="180" height="54" rx="14" fill="#F9C8D9"/>
+          <ellipse cx="150" cy="86" rx="90" ry="16" fill="#FFE6EF"/>
+          <path d="M62 105 Q 90 90 118 105 T 174 105 T 230 105" stroke="#FFFFFF" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.8"/>
+        </svg>
+        <div class="drop-items" id="cake-drop-items"></div>
+      </div>
+
+      <div class="topping-tray" id="topping-tray" role="listbox" aria-label="Cake toppings"></div>
+    </div>
+
+    <button class="btn-primary cake-finish-btn" id="btn-cake-finish" data-sfx="tap">
+      Finish decorating
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+    </button>
+  </section>
+
+  <!-- CATCH GAME -->
+  <section class="screen" id="screen-catch" aria-label="Catch game">
+    <div class="stage-header compact">
+      <p class="eyebrow">chapter four</p>
+      <h2 class="display-md">Catch the gifts</h2>
+      <p class="body-text muted">Avoid the bombs. 30 seconds.</p>
+    </div>
+
+    <div class="catch-hud">
+      <div class="hud-pill"><span class="hud-label">Score</span><span id="catch-score">0</span></div>
+      <div class="hud-pill"><span class="hud-label">Combo</span><span id="catch-combo">×1</span></div>
+      <div class="hud-pill"><span class="hud-label">Time</span><span id="catch-time">30</span></div>
+    </div>
+
+    <div class="catch-stage">
+      <canvas id="catch-canvas"></canvas>
+      <button class="btn-primary catch-start-btn" id="btn-catch-start" data-sfx="tap">Start game</button>
+
+      <div class="catch-result glass-card hidden" id="catch-result">
+        <p class="reveal-label">Round over</p>
+        <p class="reveal-text" id="catch-final-score">Score: 0</p>
+        <p class="body-text muted" id="catch-high-score">Best: 0</p>
+
+        <div class="btn-row">
+          <button class="btn-secondary" id="btn-catch-retry" data-sfx="tap">Play again</button>
+          <button class="btn-primary" id="btn-after-catch" data-sfx="tap">
+            Continue
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary floating-continue show" id="btn-after-game" data-sfx="tap">
+      Continue
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </section>
+
+  <!-- WISH GALLERY -->
+  <section class="screen" id="screen-gallery" aria-label="Wish gallery">
+    <div class="stage-header compact">
+      <p class="eyebrow">chapter five</p>
+      <h2 class="display-md">A little gallery of wishes</h2>
+      <p class="body-text muted">Tap a card to read it</p>
+    </div>
+
+    <div class="gallery-grid" id="gallery-grid"></div>
+
+    <button class="btn-primary floating-continue show" id="btn-after-gallery" data-sfx="tap">
+      Continue
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </section>
+
+  <!-- FIREWORKS -->
+  <section class="screen" id="screen-fireworks" aria-label="Fireworks">
+    <canvas id="fireworks-canvas"></canvas>
+
+    <div class="fireworks-overlay">
+      <h2 class="display-md fireworks-title">One more surprise…</h2>
+
+      <button class="btn-primary" id="btn-after-fireworks" data-sfx="tap">
+        See your card
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- FINAL CARD -->
+  <section class="screen" id="screen-final" aria-label="Final birthday card">
+    <div class="glass-card center-card final-card">
+      <button class="secret-cake" id="secret-cake" aria-label="cake" data-sfx="pop">🎂</button>
+
+      <h1 class="display-lg">
+        Happy Birthday <span id="final-name-wrap"><span id="final-name">[Name]</span></span>!
+      </h1>
+
+      <p class="body-text final-text">
+        Thank you for taking a few minutes to explore this little surprise.<br/><br/>
+        I genuinely hope your special day brings you lots of happiness, laughter, and unforgettable moments.<br/><br/>
+        Wishing you an incredible year ahead filled with success, joy, and endless smiles!
+      </p>
+
+      <p class="signature" id="final-signature"></p>
+
+      <button class="btn-secondary" id="btn-replay" data-sfx="tap">Experience it again</button>
+    </div>
+  </section>
+
+  <!-- DEV MODE -->
+  <section class="screen" id="screen-dev" aria-label="Developer mode">
+    <div class="glass-card center-card dev-card">
+      <p class="eyebrow">hidden mode unlocked</p>
+      <h2 class="display-md">Developer Mode</h2>
+
+      <div class="dev-row"><span>Project Status</span><strong>Completed</strong></div>
+      <div class="dev-row"><span>Made with</span><strong>Care, not hours</strong></div>
+      <div class="dev-row"><span>Mission</span><strong>Create a smile</strong></div>
+      <div class="dev-row"><span>Version</span><strong>1.0</strong></div>
+      <div class="dev-row"><span>Achievement</span><strong>🏆 Birthday Delivered</strong></div>
+
+      <button class="btn-primary" id="btn-dev-close" data-sfx="tap">Close</button>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-backdrop hidden" id="wish-modal-backdrop">
+  <div class="glass-card wish-modal" id="wish-modal" role="dialog" aria-modal="true" aria-label="Wish">
+    <p class="reveal-label" id="wish-modal-label">wish</p>
+    <p class="reveal-text" id="wish-modal-text"></p>
+    <button class="btn-primary" id="wish-modal-close" data-sfx="tap">Close</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="./app.js"></script>
+
+</body>
+</html>
